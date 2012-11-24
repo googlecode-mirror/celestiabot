@@ -1,0 +1,1 @@
+.\php\php.exe bot.php

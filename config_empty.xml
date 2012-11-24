@@ -1,0 +1,24 @@
+<?xml version='1.0' standalone='yes'?>
+<settings>
+    <bot>
+        <username>bot</username>
+        <password>qwerty</password>
+        <server>jabber.org</server>
+        <resource>JBot</resource>
+        <status>dnd</status>
+        <status_text>Online</status_text>
+    </bot>
+    <owners>
+        <owner>owner@jabber.org</owner>
+        <owner>conf@conference.jabber.ru/nick</owner>
+    </owners>
+    <conferences>
+        <conference>
+            <server>conf@conference.jabber.ru</server>
+            <nick>Bot</nick>
+        </conference>
+    </conferences> 
+    <phrases>
+        <phrase>Phrase</phrase>
+    </phrases>
+</settings>
