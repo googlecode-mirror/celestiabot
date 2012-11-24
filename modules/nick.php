@@ -1,7 +1,6 @@
 <?php
 class nick extends Module {
     public $trigger = true;
-    public $groupchat = true;
     
     public function run($message, $xmpp) {
         $type = $xmpp->getMessageType($message);

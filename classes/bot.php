@@ -70,16 +70,24 @@ class Bot {
             $param[0] = str_replace("!", "", $param[0]);
             if(isset($this->modules[$param[0]])) {
                 if($mess[0] == "chat") {
-                    if($this->modules[$param[0]]->params == count($param) - 1) {
+                    if($this->modules[$param[0]]->params_no) {
                         $this->message($mess[1], $this->modules[$param[0]]->run($param, $this->getMessageType($message), $this), "chat");
                     }else{
-                        $this->message($mess[1], "Неверное количество параметров!", "chat");
+                        if($this->modules[$param[0]]->params == count($param) - 1) {
+                            $this->message($mess[1], $this->modules[$param[0]]->run($param, $this->getMessageType($message), $this), "chat");
+                        }else{
+                            $this->message($mess[1], "Неверное количество параметров!", "chat");
+                        }
                     }
                 }elseif($mess[0] == "groupchat" && $this->modules[$param[0]]->groupchat) {
-                    if($this->modules[$param[0]]->params == count($param) - 1) {
+                    if($this->modules[$param[0]]->params_no) {
                         $this->message($mess[1], $mess[2].": ".$this->modules[$param[0]]->run($param, $this->getMessageType($message), $this), "groupchat");
                     }else{
-                        $this->message($mess[1], $mess[2].": неверное количество параметров!", "groupchat");
+                        if($this->modules[$param[0]]->params == count($param) - 1) {
+                            $this->message($mess[1], $mess[2].": ".$this->modules[$param[0]]->run($param, $this->getMessageType($message), $this), "groupchat");
+                        }else{
+                            $this->message($mess[1], $mess[2].": неверное количество параметров!", "groupchat");
+                        }
                     }
                 }elseif($mess[0] == "groupchat" && !$this->modules[$param[0]]->groupchat) {
                     $this->message($mess[1], $mess[2].": запрещен запуск модуля в конференции!", "groupchat");
