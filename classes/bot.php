@@ -42,7 +42,7 @@ class Bot {
 						if ($key>0) array_push ($present, $roles[$z]);
 						}
 						array_unshift($present, ' ');
-
+                                                print_r($this->xmpp->r1);
 					break;
 
                                 //Старт
