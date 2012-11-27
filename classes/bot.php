@@ -9,6 +9,8 @@ class Bot {
     
     function __construct($configuration) {
         $this->config = $configuration;
+        mysql_connect("localhost", "root", "");
+mysql_select_db("bot");
     }
     
     public function connect() {
