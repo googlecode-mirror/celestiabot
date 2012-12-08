@@ -21,4 +21,10 @@
     <phrases>
         <phrase>Phrase</phrase>
     </phrases>
+	<mysql>
+		<host>localhost</host>
+		<user>root</user>
+		<pass></pass>
+		<base>base</base>
+	</mysql>
 </settings>

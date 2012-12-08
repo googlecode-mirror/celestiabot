@@ -5,7 +5,7 @@
 include "classes/bot.php";
 include "XMPPHP/XMPP.php";
 include "classes/module.php";
-
+include "classes/mysql.php";
 global $bot;
 
 $bot = new Bot(new SimpleXMLElement(file_get_contents("config.xml")));

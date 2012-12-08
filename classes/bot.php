@@ -6,20 +6,21 @@ class Bot {
     private $triggers;
     public $muted = false;
     private $owners = array();
-    
+    public $mysql;
+	
     function __construct($configuration) {
         $this->config = $configuration;
-        mysql_connect("localhost", "root", "");
-mysql_select_db("bot");
     }
     
     public function connect() {
         $this->xmpp = new XMPP($this->config->bot->server, 5222, $this->config->bot->username, $this->config->bot->password, $this->config->bot->resource, null, $printlog=True, $loglevel=LOGGING_INFO);
         $this->xmpp->addHandler('iq','jabber:client','income_iq');
         $this->xmpp->connect();
+		$this->mysql = new mysql($this->config->mysql->host, $this->config->mysql->user, $this->config->mysql->pass, $this->config->mysql->base);
+		$this->mysql->connect();
     }
-    
-    public function workCycle() {
+        
+	public function workCycle() {
         while(!$this->xmpp->disconnected) {
 		$payloads = $this->xmpp->processUntil(array('message', 'presence', 'end_stream', 'session_start'));
 
