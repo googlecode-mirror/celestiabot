@@ -89,12 +89,6 @@ public function presence_handler($xml) {
 		$payload['status'] = $xml->sub('status')->data;
 
 		$tmp = print_r($xml, true);
-			//$this->message ('narkoz@jabber.ru', $tmp, 'chat');
-			//$payload['role'] = $xml->sub(0)->sub('item')->attrs['role'];
-			//$payload['jid'] = $xml->sub(0)->sub('item')->attrs['jid'];
-			//$payload['affiliation'] = $xml->sub(0)->sub('item')->attrs['affiliation'];
-			//$this->message ('narkoz@jabber.ru', $payload['jid'], 'chat');
-
             $tmp = str_replace ("\n", '', $tmp);
 			$tmp = str_replace ("\r", '', $tmp);
 			$pattern = '/\[role\] => (moderator|participant)/i';
@@ -104,9 +98,6 @@ public function presence_handler($xml) {
 			preg_match($pattern, $tmp, $matches);
 			$payload['jid'] = trim($matches[1]);
 
-   		//$key = array_search($payload['from'], $this->role_st);
-		//print_r ($this->role_st);
-		//$this->message ('narkoz@jabber.ru', $payload['from'].' = '.$key, 'chat');
 
    		$found = FALSE;
    		foreach ($this->role_st as $key => $val) {
@@ -124,17 +115,13 @@ public function presence_handler($xml) {
 		{
 		if (empty ($payload['jid'])) $payload['jid'] = 'none';
 		if (empty ($payload['role'])) $payload['jid'] = 'none';
-		$this->role_st[$key] = $payload['from'];
-		$this->role_st[$key+1] = $payload['jid'];
-		$this->role_st[$key+2] = $payload['role'];
+		$this->role_st[$key] = array($payload['from'], $payload['jid'], $payload['role']);
 		}
 		else
 		{
 		if (empty ($payload['jid'])) $payload['jid'] = 'none';
 		if (empty ($payload['role'])) $payload['jid'] = 'none';
-		array_push ($this->role_st, $payload['from']);
-		array_push ($this->role_st, $payload['jid']);
-		array_push ($this->role_st, $payload['role']);
+		array_push ($this->role_st, array($payload['from'], $payload['jid'], $payload['role']));
 		}
 
 		$this->r1 = $this->role_st;

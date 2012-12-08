@@ -7,7 +7,8 @@ class Bot {
     public $muted = false;
     private $owners = array();
     public $mysql;
-	
+    public $roles;
+    
     function __construct($configuration) {
         $this->config = $configuration;
     }
@@ -33,20 +34,10 @@ class Bot {
                                     break;
 
                                 //Обработчик статусов пользователей
-					case 'presence':
-
-					    //Получаем доступные JIDы и права пользователей
-						$roles = $this->xmpp->r1;
-						array_unshift($roles, ' ');
-						$present = array ();
-						for($z=0 ; $z<count($roles); $z++)
-						{
-						$key = strpos ($roles[$z], 'conference');
-						if ($key>0) array_push ($present, $roles[$z]);
-						}
-						array_unshift($present, ' ');
-                                                print_r($this->xmpp->r1);
-					break;
+				case 'presence':
+                                    $this->roles = $this->xmpp->r1;
+                                    //print_r($this->roles);
+                                    break;
 
                                 //Старт
 				case 'session_start':
@@ -179,7 +170,7 @@ class Bot {
         return in_array($jid, $this->owners);
     }
     
-    public function getConfParamByServer($server) {
+    public function getNickInConference($server) {
         foreach($this->config->conferences->conference as $c) {
             if($c->server == $server) {
                 return $c->nick;
@@ -189,8 +180,15 @@ class Bot {
     
     public function getRandomPhrase() {
         $r = rand(0, count($this->config->phrases->phrase)-1);
-        echo $r;
         return $this->config->phrases->phrase[$r];
+    }
+    
+    public function getTextFromTag($str, $begin, $end) {
+        if(!preg_match('/'.preg_quote($begin).'(.+)'.preg_quote($end).'/isU', $str, $match)) {
+            return null;
+        }else{
+            return $match[1];
+        }
     }
 }
 ?>
