@@ -5,7 +5,7 @@ error_reporting(0);
 
 include "classes/bot.php";
 include "XMPPHP/XMPP.php";
-include "classes/module.php";
+include "classes/Module.php";
 include "classes/mysql.php";
 include "classes/Misc.php";
 global $bot;
