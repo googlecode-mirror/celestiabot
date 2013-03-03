@@ -21,8 +21,8 @@ class Logging {
 	function log($msg, $runlevel=Null) {
 		if($runlevel === Null) $runlevel = LOGGING_INFO;
 		$data[] = array($this->runlevel, $msg);
-		if($this->printout and $runlevel <= $this->runlevel) print "{$this->names[$runlevel]}: $msg\n<br>";
-		flush ();
+		if($this->printout and $runlevel <= $this->runlevel) print "{$this->names[$runlevel]}: $msg\n";
+		flush();
 	}
 
 	function printout($clear=True, $runlevel=Null) {
@@ -31,7 +31,7 @@ class Logging {
 			if($runlevel <= $data[0]) print "{$this->names[$runlevel]}: $data[1]\n<br>";
 		}
 		if($clear) $this->data = array();
-		flush ();
+		flush();
 	}
 }
 

@@ -146,7 +146,7 @@ function show ($show='available', $to=Null) {
 
     function topic2 ($to,$txt='Feel free to change me!') {
 		$to = htmlspecialchars($to);
-		$out = '<message type="groupchat" id="'.$id.'" to="'.$to.'"><subject>'.$txt.'</subject><body>/me РёР·РјРµРЅРёР» С‚РµРјСѓ РЅР°: '.$txt.'</body></message>';
+		$out = '<message type="groupchat" id="'.$id.'" to="'.$to.'"><subject>'.$txt.'</subject></message>';
 		$this->send($out);
 	}
 
@@ -222,6 +222,7 @@ function show ($show='available', $to=Null) {
 			}
 
 		public function vinfo($me, $from, $msgtype,$what,$ansver_to_conf,$user_in_conf) {
+                     echo 0;
 				$me = htmlspecialchars($me);
 				$from = htmlspecialchars($from);
 				$id = $this->getId();
@@ -239,13 +240,14 @@ function show ($show='available', $to=Null) {
 				$start1=gettimeofday();
 				$this->start1=$start1;
 				for($i=0; $i<10000; $i++) { // do nothing
+                                   
 				}
 
 				}
 
 				$out = '<iq from="'.$me.'" to="'.$from.'" id="'.$id.'" type="get"><query xmlns="jabber:iq:version"/></iq>';
 				$this->send($out);
-
+                                
 			}
 
 		function features_handler($xml) {
@@ -302,7 +304,8 @@ function show ($show='available', $to=Null) {
 			$tmp['type'] = $xml->attrs['type'];
 
 				if($xml->hassub('query'))
-				{				$tmp['name'] = $xml->sub(0)->sub('name')->data;
+				{
+				$tmp['name'] = $xml->sub(0)->sub('name')->data;
 				$tmp['version'] = $xml->sub(0)->sub('version')->data;
 				$tmp['os'] = $xml->sub(0)->sub('os')->data;
 
@@ -312,9 +315,11 @@ function show ($show='available', $to=Null) {
 				if ($this->ver_chat_type == 'chat') $this->message ($this->ver_to, $tmp['name'].$tmp['version'].' '.$tmp['os'], $this->ver_chat_type);
 
 				if ($this->ver_chat_type == 'groupchat')
-					{					if (empty ($tmp['name'])) $tmp['name']='Not found!';
+					{
+					if (empty ($tmp['name'])) $tmp['name']='Not found!';
 					$this->message ($this->tconf, $this->user_name_inconf.': '.$tmp['name'].$tmp['version'].' '.$tmp['os'], $this->ver_chat_type);
-					}				}
+					}
+				}
 			}
 
 			//ping
@@ -322,9 +327,10 @@ function show ($show='available', $to=Null) {
 			{
 			$end1=gettimeofday();
 			$totaltime1 = (float)($end1['sec'] - $this->start1['sec']) + ((float)($end1['usec'] - $this->start1['usec'])/1000000);
-			if ($this->ver_chat_type == 'chat') $this->message ($this->ver_to, 'РџРѕРЅРі: '.substr ($totaltime1, 0,4).' СЃРµРє.', $this->ver_chat_type);
-			if ($this->ver_chat_type == 'groupchat') $this->message ($this->tconf, $this->user_name_inconf.': РџРѕРЅРі: '.substr ($totaltime1, 0,4).' СЃРµРє.', $this->ver_chat_type);
-			$this->ver_type = 'none';
+			if ($this->ver_chat_type == 'chat') $this->message ($this->ver_to, 'Pong: '.substr ($totaltime1, 0,4), $this->ver_chat_type);
+			if ($this->ver_chat_type == 'groupchat') $this->message ($this->tconf, $this->user_name_inconf.': Pong: '.substr ($totaltime1, 0,4), $this->ver_chat_type);
+			echo 1;
+                        $this->ver_type = 'none';
 			}
 		}
 

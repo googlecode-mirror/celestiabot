@@ -2,15 +2,19 @@
 class Bot {
     public $xmpp;
     public $config;
-    private $modules;
-    private $triggers;
+    public $modules;
+    public $triggers;
     public $muted = false;
     private $owners = array();
+    
     public $mysql;
-    public $roles;
+    public $misc;
+    
+    public $roles; // TODO!
     
     function __construct($configuration) {
         $this->config = $configuration;
+        $this->misc = new Misc();
     }
     
     public function connect() {
@@ -21,7 +25,11 @@ class Bot {
 		$this->mysql->connect();
     }
         
-	public function workCycle() {
+    public function disconnect() {
+        $this->xmpp->dicsonnect();
+    }
+    
+    public function workCycle() {
         while(!$this->xmpp->disconnected) {
 		$payloads = $this->xmpp->processUntil(array('message', 'presence', 'end_stream', 'session_start'));
 
@@ -36,6 +44,21 @@ class Bot {
                                 //Обработчик статусов пользователей
 				case 'presence':
                                     $this->roles = $this->xmpp->r1;
+                                    array_unshift($this->roles, ' ');
+						$present = array ();
+						for($z=0 ; $z<count($this->roles); $z++)
+						{
+						$key = strpos ($this->roles[$z], 'conference');
+						if ($key>0) array_push ($present, $this->roles[$z]);
+						}
+						array_unshift($present, ' ');
+                                    echo "-----------\n";
+                                    foreach($this->roles as $role) {
+                                        foreach($role as $r) {
+                                            echo $r."|";
+                                        }
+                                        echo "\n";
+                                    }
                                     //print_r($this->roles);
                                     break;
 
@@ -60,31 +83,24 @@ class Bot {
         }
         
         if($message['body']{0} == "!") {
+            if(strlen($message['body']) == 1) {
+		return;
+            }
             $param = explode(" ", $message['body']);
             $param[0] = str_replace("!", "", $param[0]);
             if(isset($this->modules[$param[0]])) {
-                if($mess[0] == "chat") {
-                    if($this->modules[$param[0]]->params_no) {
-                        $this->message($mess[1], $this->modules[$param[0]]->run($param, $this->getMessageType($message), $this), "chat");
+                if($this->modules[$param[0]]->for_owner) {
+                    if($this->isOwner($mess)) {
+                        $this->callModule($mess, $message, $param);
                     }else{
-                        if($this->modules[$param[0]]->params == count($param) - 1) {
-                            $this->message($mess[1], $this->modules[$param[0]]->run($param, $this->getMessageType($message), $this), "chat");
+                        if($mess[0] == "groupchat") {
+                            $this->message($mess[1], $mess[2].": недостаточно прав!", "groupchat");
                         }else{
-                            $this->message($mess[1], "Неверное количество параметров!", "chat");
+                            $this->message($mess[1], "Недостаточно прав!", "chat");
                         }
                     }
-                }elseif($mess[0] == "groupchat" && $this->modules[$param[0]]->groupchat) {
-                    if($this->modules[$param[0]]->params_no) {
-                        $this->message($mess[1], $mess[2].": ".$this->modules[$param[0]]->run($param, $this->getMessageType($message), $this), "groupchat");
-                    }else{
-                        if($this->modules[$param[0]]->params == count($param) - 1) {
-                            $this->message($mess[1], $mess[2].": ".$this->modules[$param[0]]->run($param, $this->getMessageType($message), $this), "groupchat");
-                        }else{
-                            $this->message($mess[1], $mess[2].": неверное количество параметров!", "groupchat");
-                        }
-                    }
-                }elseif($mess[0] == "groupchat" && !$this->modules[$param[0]]->groupchat) {
-                    $this->message($mess[1], $mess[2].": запрещен запуск модуля в конференции!", "groupchat");
+                }else{
+                    $this->callModule($mess, $message, $param);
                 }
             }else{
                 if($mess[0] == "groupchat") {
@@ -94,6 +110,32 @@ class Bot {
                 }
             }
         }
+    }
+    
+    private function callModule($mess, $message, $param) {
+        if($mess[0] == "chat") {
+                            if($this->modules[$param[0]]->params_no) {
+                                $this->message($mess[1], $this->modules[$param[0]]->run($param, $this->getMessageType($message), $this), "chat");
+                            }else{
+                                if($this->modules[$param[0]]->params == count($param) - 1) {
+                                    $this->message($mess[1], $this->modules[$param[0]]->run($param, $this->getMessageType($message), $this), "chat");
+                                }else{
+                                    $this->message($mess[1], "Неверное количество параметров!", "chat");
+                                }
+                            }
+                        }elseif($mess[0] == "groupchat" && $this->modules[$param[0]]->groupchat) {
+                            if($this->modules[$param[0]]->params_no) {
+                                $this->message($mess[1], $mess[2].": ".$this->modules[$param[0]]->run($param, $this->getMessageType($message), $this), "groupchat");
+                            }else{
+                                if($this->modules[$param[0]]->params == count($param) - 1) {
+                                    $this->message($mess[1], $mess[2].": ".$this->modules[$param[0]]->run($param, $this->getMessageType($message), $this), "groupchat");
+                                }else{
+                                    $this->message($mess[1], $mess[2].": неверное количество параметров!", "groupchat");
+                                }
+                            }
+                        }elseif($mess[0] == "groupchat" && !$this->modules[$param[0]]->groupchat) {
+                            $this->message($mess[1], $mess[2].": запрещен запуск модуля в конференции!", "groupchat");
+                        }
     }
     
     public function setStatus($text, $status) {
@@ -108,6 +150,10 @@ class Bot {
     
     public function enterConference($conf) {
         $this->xmpp->joinc($conf->server.'/'.$conf->nick, $this->config->bot->status);
+    }
+    
+    public function setTopic($to, $topic) {
+        $this->xmpp->topic2($to, $topic);
     }
     
     public function getMessageType($message) {
@@ -141,17 +187,30 @@ class Bot {
             $name2 = explode(".", $name[1]);
             include $module;    
             $mod = new $name2[0];
-            if($mod->trigger) {
-                $this->triggers[$name2[0]] = $mod;
-            }else{
-                $this->modules[$name2[0]] = $mod;
-            }
+            $this->modules[$name2[0]] = $mod;
+        }
+        
+        $inct = glob("triggers/*.php");
+        foreach($inct as $trigger) {
+            $name = explode("/", $trigger);
+            $name2 = explode(".", $name[1]);
+            include $trigger;    
+            $trig = new $name2[0];
+            $this->triggers[$name2[0]] = $trig;
         }
     }
     
     public function message($to, $text, $type) {
         if(!$this->muted) {
             $this->xmpp->message($to, $text, $type);
+        }
+    }
+    
+    public function messageAllConferences($text) {
+        if(!$this->muted) {
+            foreach($this->config->conferences->conference as $c) {
+                $this->xmpp->message($c->server, $text, 'groupchat');
+            }
         }
     }
     
@@ -183,12 +242,5 @@ class Bot {
         return $this->config->phrases->phrase[$r];
     }
     
-    public function getTextFromTag($str, $begin, $end) {
-        if(!preg_match('/'.preg_quote($begin).'(.+)'.preg_quote($end).'/isU', $str, $match)) {
-            return null;
-        }else{
-            return $match[1];
-        }
-    }
 }
 ?>

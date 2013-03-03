@@ -203,8 +203,6 @@ class XMLStream {
 	}
 
 	function endXML($parser, $name) {
-		#$this->log->log("Ending $name", LOGGING_DEBUG);
-		#print "$name\n";
 		if($this->been_reset) {
 			$this->been_reset = False;
 			$this->xml_depth = 0;
@@ -296,7 +294,6 @@ function doReconnect() {
 	}
 
 	function send($msg) {
-		#socket_write($this->socket, $msg);
 		$this->log->log("SENT: $msg", LOGGING_VERBOSE);
 		@fwrite($this->socket, $msg);
 	}

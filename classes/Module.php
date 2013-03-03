@@ -4,5 +4,6 @@ class Module {
     public $trigger = false;
     public $params = 0;
     public $params_no = false;
+    public $for_owner = false;
 }
 ?>
